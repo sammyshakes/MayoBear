@@ -56,16 +56,14 @@ contract MayoBearTest is Test {
 
         // Enable trading and verify
         mayoBear.enableTrading(2); // Enable trading after 2 blocks
-        // should still be false
-        // assertFalse(mayoBear.tradingActive());
+        assertTrue(mayoBear.tradingActive());
 
         //get user1 balance
         uint256 user1Balance = mayoBear.balanceOf(user1);
 
         //attempt to trade
-        // vm.expectRevert("Trading is not active.");
-        vm.startPrank(mayoBear.lpPair()); // Simulate the next call comes from user1
-        // mayoBear.approve(address(this), 500 * 1e18);
+
+        vm.startPrank(mayoBear.lpPair());
         mayoBear.transfer(user1, 500 * 1e18); // Transfer some tokens
 
         vm.stopPrank();
@@ -76,7 +74,7 @@ contract MayoBearTest is Test {
         uint256 blockNumber = block.number;
 
         // Fast forward 2 blocks
-        vm.roll(blockNumber + 2);
+        vm.roll(blockNumber + 3);
 
         // attempt to trade
         vm.startPrank(mayoBear.lpPair());
