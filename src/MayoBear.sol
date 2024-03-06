@@ -569,13 +569,13 @@ contract MayoBear is ERC20, Ownable {
     function updateBuyFees(
         uint256 _operationsFee,
         uint256 _liquidityFee,
-        uint256 _devFee,
+        uint256 _marketingFee,
         uint256 _burnFee,
         uint256 _PAIBuybackFee
     ) external onlyOwner {
         buyOperationsFee = _operationsFee;
         buyLiquidityFee = _liquidityFee;
-        buyMarketingFee = _devFee;
+        buyMarketingFee = _marketingFee;
         buyBurnFee = _burnFee;
         buyPAIBuybackFee = _PAIBuybackFee;
         buyTotalFees = buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
@@ -585,13 +585,13 @@ contract MayoBear is ERC20, Ownable {
     function updateSellFees(
         uint256 _operationsFee,
         uint256 _liquidityFee,
-        uint256 _devFee,
+        uint256 _marketingFee,
         uint256 _burnFee,
         uint256 _PAIBuybackFee
     ) external onlyOwner {
         sellOperationsFee = _operationsFee;
         sellLiquidityFee = _liquidityFee;
-        sellMarketingFee = _devFee;
+        sellMarketingFee = _marketingFee;
         sellBurnFee = _burnFee;
         sellPAIBuybackFee = _PAIBuybackFee;
         sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee + sellPAIBuybackFee;
