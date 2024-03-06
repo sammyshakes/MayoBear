@@ -10,9 +10,9 @@ contract MayoBearTest is Test {
 
     // dex router address
     address public router = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-    IDexRouter _dexRouter = IDexRouter(router);
+    IDexRouter dexRouter = IDexRouter(router);
 
-    address public owner;
+    address public owner = address(this);
     address public user1 = address(0x1);
     address public user2 = address(0x2);
 
@@ -28,10 +28,160 @@ contract MayoBearTest is Test {
         assertEq(ownerBalance, 1e9 * 1e18);
 
         // Prepare by transferring some tokens to the user1 for testing transfers
-        mayoBear.transfer(user1, 1000 * 1e18);
+        mayoBear.transfer(user1, 1000000 * 1e18);
+        mayoBear.transfer(owner, 500000000 * 1e18);
 
         // Prepare by transferring some tokens to the lppair for testing transfers
         mayoBear.transfer(mayoBear.lpPair(), 1000 * 1e18);
+
+        // deal ether to users
+        vm.deal(user1, 1000 * 1e18);
+        vm.deal(user2, 1000 * 1e18);
+        vm.deal(owner, 1000 * 1e18);
+    }
+
+    //test buying tokens via dex
+    function test_BuyTokens() public {
+        mayoBear.enableTrading(0);
+
+        //disable transfer delay
+        mayoBear.removeLimits();
+
+        //get user1 balance
+        uint256 user1Balance = mayoBear.balanceOf(user1);
+
+        uint256 user2Balance = mayoBear.balanceOf(user2);
+
+        uint256 ownerBalance = mayoBear.balanceOf(address(this));
+
+        uint256 lpPairBalance = mayoBear.balanceOf(mayoBear.lpPair());
+
+        mayoBear.approve(address(dexRouter), 2000000 * 1e18);
+        //owner adds liquidity via dex
+        dexRouter.addLiquidityETH{value: 200e18}(
+            address(mayoBear), 50000000e18, 40000000e18, 2e18, owner, block.timestamp + 15
+        );
+
+        //get user1 balance
+        uint256 user1BalanceAfter = mayoBear.balanceOf(user1);
+
+        address[] memory path = new address[](2);
+        path[0] = dexRouter.WETH();
+        path[1] = address(mayoBear);
+
+        //user1 buys tokens via dex
+        vm.prank(user1);
+        dexRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: 10e18}(
+            0, // accept any amount of MayoBear
+            path,
+            user1,
+            block.timestamp + 15
+        );
+
+        // check mayo bear tokens for pai buyback
+        console2.log("=============================================");
+        console2.log("PAI Back: ", mayoBear.tokensForPAIBuyback());
+        console2.log("Liquidity: ", mayoBear.tokensForLiquidity());
+        console2.log("marketing: ", mayoBear.tokensForMarketing());
+        console2.log("oper: ", mayoBear.tokensForOperations());
+
+        // user2 buys tokens via dex
+        vm.prank(user2);
+        dexRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: 10e18}(
+            0, // accept any amount of MayoBear
+            path,
+            user2,
+            block.timestamp + 15
+        );
+
+        // check mayo bear tokens for pai buyback
+        console2.log("=============================================");
+        console2.log("PAI Back: ", mayoBear.tokensForPAIBuyback());
+        console2.log("Liquidity: ", mayoBear.tokensForLiquidity());
+        console2.log("marketing: ", mayoBear.tokensForMarketing());
+        console2.log("oper: ", mayoBear.tokensForOperations());
+
+        //user1 sells tokens via dex
+        path[1] = dexRouter.WETH();
+        path[0] = address(mayoBear);
+
+        uint256 user1BalanceBefore = mayoBear.balanceOf(user1);
+        uint256 user1EthBefore = address(user1).balance;
+
+        vm.startPrank(user1);
+        mayoBear.approve(address(dexRouter), user1BalanceBefore);
+        dexRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            user1BalanceBefore,
+            0, // accept any amount of ETH
+            path,
+            user1,
+            block.timestamp + 15
+        );
+        vm.stopPrank();
+
+        // check mayo bear tokens for pai buyback
+        console2.log("=============================================");
+        console2.log("PAI Back: ", mayoBear.tokensForPAIBuyback());
+        console2.log("Liquidity: ", mayoBear.tokensForLiquidity());
+        console2.log("marketing: ", mayoBear.tokensForMarketing());
+        console2.log("oper: ", mayoBear.tokensForOperations());
+
+        //user2 sells tokens via dex
+        uint256 user2BalanceBefore = mayoBear.balanceOf(user2);
+        uint256 user2EthBefore = address(user2).balance;
+
+        vm.startPrank(user2);
+        mayoBear.approve(address(dexRouter), user2BalanceBefore);
+        dexRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            user2BalanceBefore,
+            0, // accept any amount of ETH
+            path,
+            user2,
+            block.timestamp + 15
+        );
+        vm.stopPrank();
+
+        // check mayo bear tokens for pai buyback
+        console2.log("=============================================");
+        console2.log("PAI Back: ", mayoBear.tokensForPAIBuyback());
+        console2.log("Liquidity: ", mayoBear.tokensForLiquidity());
+        console2.log("marketing: ", mayoBear.tokensForMarketing());
+        console2.log("oper: ", mayoBear.tokensForOperations());
+
+        // user1 buys tokens via dex
+        path[0] = dexRouter.WETH();
+        path[1] = address(mayoBear);
+
+        vm.prank(user1);
+        dexRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: 10e18}(
+            0, // accept any amount of MayoBear
+            path,
+            user1,
+            block.timestamp + 15
+        );
+
+        // check mayo bear tokens for pai buyback
+        console2.log("=============================================");
+        console2.log("PAI Back: ", mayoBear.tokensForPAIBuyback());
+        console2.log("Liquidity: ", mayoBear.tokensForLiquidity());
+        console2.log("marketing: ", mayoBear.tokensForMarketing());
+        console2.log("oper: ", mayoBear.tokensForOperations());
+
+        // user2 buys tokens via dex
+        vm.prank(user2);
+        dexRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: 10e18}(
+            0, // accept any amount of MayoBear
+            path,
+            user2,
+            block.timestamp + 15
+        );
+
+        // check mayo bear tokens for pai buyback
+        console2.log("=============================================");
+        console2.log("PAI Back: ", mayoBear.tokensForPAIBuyback());
+        console2.log("Liquidity: ", mayoBear.tokensForLiquidity());
+        console2.log("marketing: ", mayoBear.tokensForMarketing());
+        console2.log("oper: ", mayoBear.tokensForOperations());
     }
 
     // test all the initial values and public variables

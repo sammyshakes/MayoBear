@@ -346,7 +346,7 @@ contract MayoBear is ERC20, Ownable {
     uint256 public swapTokensAtAmount;
 
     address operationsAddress;
-    address devAddress;
+    address marketingAddress;
 
     uint256 public tradingActiveBlock = 0; // 0 means trading is not active
     uint256 public blockForPenaltyEnd;
@@ -364,20 +364,20 @@ contract MayoBear is ERC20, Ownable {
     uint256 public buyTotalFees;
     uint256 public buyOperationsFee;
     uint256 public buyLiquidityFee;
-    uint256 public buyDevFee;
+    uint256 public buyMarketingFee;
     uint256 public buyBurnFee;
     uint256 public buyPAIBuybackFee;
 
     uint256 public sellTotalFees;
     uint256 public sellOperationsFee;
     uint256 public sellLiquidityFee;
-    uint256 public sellDevFee;
+    uint256 public sellMarketingFee;
     uint256 public sellBurnFee;
     uint256 public sellPAIBuybackFee;
 
     uint256 public tokensForOperations;
     uint256 public tokensForLiquidity;
-    uint256 public tokensForDev;
+    uint256 public tokensForMarketing;
     uint256 public tokensForBurn;
     uint256 public tokensForPAIBuyback;
 
@@ -441,19 +441,19 @@ contract MayoBear is ERC20, Ownable {
         maxWalletAmount = totalSupply * 25 / 10000;
         swapTokensAtAmount = totalSupply * 5 / 10000;
 
-        buyOperationsFee = 3;
-        buyLiquidityFee = 2;
-        buyDevFee = 0;
+        buyOperationsFee = 1;
+        buyLiquidityFee = 4;
+        buyMarketingFee = 1;
         buyBurnFee = 0;
-        buyPAIBuybackFee = 5;
-        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyDevFee + buyBurnFee + buyPAIBuybackFee;
+        buyPAIBuybackFee = 4;
+        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
 
-        sellOperationsFee = 3;
-        sellLiquidityFee = 2;
-        sellDevFee = 0;
+        sellOperationsFee = 1;
+        sellLiquidityFee = 4;
+        sellMarketingFee = 1;
         sellBurnFee = 0;
-        sellPAIBuybackFee = 5;
-        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellDevFee + sellBurnFee + sellPAIBuybackFee;
+        sellPAIBuybackFee = 4;
+        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee + sellPAIBuybackFee;
 
         _excludeFromMaxTransaction(newOwner, true);
         _excludeFromMaxTransaction(address(this), true);
@@ -464,7 +464,7 @@ contract MayoBear is ERC20, Ownable {
         excludeFromFees(address(0xdead), true);
 
         operationsAddress = address(newOwner);
-        devAddress = address(newOwner);
+        marketingAddress = address(newOwner);
 
         _createInitialSupply(newOwner, totalSupply);
         transferOwnership(newOwner);
@@ -575,10 +575,10 @@ contract MayoBear is ERC20, Ownable {
     ) external onlyOwner {
         buyOperationsFee = _operationsFee;
         buyLiquidityFee = _liquidityFee;
-        buyDevFee = _devFee;
+        buyMarketingFee = _devFee;
         buyBurnFee = _burnFee;
         buyPAIBuybackFee = _PAIBuybackFee;
-        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyDevFee + buyBurnFee + buyPAIBuybackFee;
+        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
         require(buyTotalFees <= 10, "Must keep fees at 10% or less");
     }
 
@@ -591,28 +591,28 @@ contract MayoBear is ERC20, Ownable {
     ) external onlyOwner {
         sellOperationsFee = _operationsFee;
         sellLiquidityFee = _liquidityFee;
-        sellDevFee = _devFee;
+        sellMarketingFee = _devFee;
         sellBurnFee = _burnFee;
         sellPAIBuybackFee = _PAIBuybackFee;
-        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellDevFee + sellBurnFee + sellPAIBuybackFee;
+        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee + sellPAIBuybackFee;
         require(sellTotalFees <= 10, "Must keep fees at 10% or less");
     }
 
     function returnToNormalTax() external onlyOwner {
         sellOperationsFee = 0;
         sellLiquidityFee = 0;
-        sellDevFee = 0;
+        sellMarketingFee = 0;
         sellBurnFee = 0;
         sellPAIBuybackFee = 0;
-        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellDevFee + sellBurnFee + sellPAIBuybackFee;
+        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee + sellPAIBuybackFee;
         require(sellTotalFees <= 10, "Must keep fees at 10% or less");
 
         buyOperationsFee = 0;
         buyLiquidityFee = 0;
-        buyDevFee = 0;
+        buyMarketingFee = 0;
         buyBurnFee = 0;
         buyPAIBuybackFee = 0;
-        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyDevFee + buyBurnFee + buyPAIBuybackFee;
+        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
         require(buyTotalFees <= 10, "Must keep fees at 10% or less");
     }
 
@@ -707,7 +707,7 @@ contract MayoBear is ERC20, Ownable {
                 fees = amount * 99 / 100;
                 tokensForLiquidity += fees * buyLiquidityFee / buyTotalFees;
                 tokensForOperations += fees * buyOperationsFee / buyTotalFees;
-                tokensForDev += fees * buyDevFee / buyTotalFees;
+                tokensForMarketing += fees * buyMarketingFee / buyTotalFees;
                 tokensForBurn += fees * buyBurnFee / buyTotalFees;
                 tokensForPAIBuyback += fees * buyPAIBuybackFee / buyTotalFees;
             }
@@ -716,7 +716,7 @@ contract MayoBear is ERC20, Ownable {
                 fees = amount * sellTotalFees / 100;
                 tokensForLiquidity += fees * sellLiquidityFee / sellTotalFees;
                 tokensForOperations += fees * sellOperationsFee / sellTotalFees;
-                tokensForDev += fees * sellDevFee / sellTotalFees;
+                tokensForMarketing += fees * sellMarketingFee / sellTotalFees;
                 tokensForBurn += fees * sellBurnFee / sellTotalFees;
                 tokensForPAIBuyback += fees * sellPAIBuybackFee / sellTotalFees;
             }
@@ -725,7 +725,7 @@ contract MayoBear is ERC20, Ownable {
                 fees = amount * buyTotalFees / 100;
                 tokensForLiquidity += fees * buyLiquidityFee / buyTotalFees;
                 tokensForOperations += fees * buyOperationsFee / buyTotalFees;
-                tokensForDev += fees * buyDevFee / buyTotalFees;
+                tokensForMarketing += fees * buyMarketingFee / buyTotalFees;
                 tokensForBurn += fees * buyBurnFee / buyTotalFees;
                 tokensForPAIBuyback += fees * buyPAIBuybackFee / buyTotalFees;
             }
@@ -745,7 +745,7 @@ contract MayoBear is ERC20, Ownable {
     }
 
     function swapTokensForEth(uint256 tokenAmount) private {
-        // generate the uniswap pair path of token -> weth
+        // generate the uniswap pair path of MAYO -> WETH
         address[] memory path = new address[](2);
         path[0] = address(this);
         path[1] = dexRouter.WETH();
@@ -784,7 +784,7 @@ contract MayoBear is ERC20, Ownable {
         tokensForBurn = 0;
 
         uint256 contractBalance = balanceOf(address(this));
-        uint256 totalTokensToSwap = tokensForLiquidity + tokensForOperations + tokensForDev;
+        uint256 totalTokensToSwap = tokensForLiquidity + tokensForOperations + tokensForMarketing;
 
         if (contractBalance == 0 || totalTokensToSwap == 0) return;
 
@@ -797,15 +797,15 @@ contract MayoBear is ERC20, Ownable {
         // Halve the amount of liquidity tokens
         uint256 liquidityTokens = contractBalance * tokensForLiquidity / totalTokensToSwap / 2;
 
-        swapTokensForEth(contractBalance - liquidityTokens);
+        swapTokensForEth(contractBalance - liquidityTokens - tokensForPAIBuyback);
 
         uint256 ethBalance = address(this).balance;
         uint256 ethForLiquidity = ethBalance;
 
         uint256 ethForOperations = ethBalance * tokensForOperations / (totalTokensToSwap - (tokensForLiquidity / 2));
-        uint256 ethForDev = ethBalance * tokensForDev / (totalTokensToSwap - (tokensForLiquidity / 2));
+        uint256 ethForMarketing = ethBalance * tokensForMarketing / (totalTokensToSwap - (tokensForLiquidity / 2));
 
-        ethForLiquidity -= ethForOperations + ethForDev;
+        ethForLiquidity -= ethForOperations + ethForMarketing;
 
         // handle PAI buyback
         swapMayoBearForPAI();
@@ -815,14 +815,14 @@ contract MayoBear is ERC20, Ownable {
 
         tokensForLiquidity = 0;
         tokensForOperations = 0;
-        tokensForDev = 0;
+        tokensForMarketing = 0;
         tokensForBurn = 0;
 
         if (liquidityTokens > 0 && ethForLiquidity > 0) {
             addLiquidity(liquidityTokens, ethForLiquidity);
         }
 
-        (success,) = address(devAddress).call{value: ethForDev}("");
+        (success,) = address(marketingAddress).call{value: ethForMarketing}("");
 
         (success,) = address(operationsAddress).call{value: address(this).balance}("");
     }
@@ -846,9 +846,9 @@ contract MayoBear is ERC20, Ownable {
         operationsAddress = payable(_operationsAddress);
     }
 
-    function setDevAddress(address _devAddress) external onlyOwner {
-        require(_devAddress != address(0), "_devAddress address cannot be 0");
-        devAddress = payable(_devAddress);
+    function setMarketingAddress(address _marketingAddress) external onlyOwner {
+        require(_marketingAddress != address(0), "_marketingAddress address cannot be 0");
+        marketingAddress = payable(_marketingAddress);
     }
 
     // force Swap back if slippage issues.
