@@ -56,7 +56,7 @@ contract MayoBearTest is Test {
 
         uint256 lpPairBalance = mayoBear.balanceOf(mayoBear.lpPair());
 
-        mayoBear.approve(address(dexRouter), 2000000 * 1e18);
+        mayoBear.approve(address(dexRouter), 50000000 * 1e18);
         //owner adds liquidity via dex
         dexRouter.addLiquidityETH{value: 200e18}(
             address(mayoBear), 50000000e18, 40000000e18, 2e18, owner, block.timestamp + 15

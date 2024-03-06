@@ -383,6 +383,7 @@ contract MayoBear is ERC20, Ownable {
 
     address public paiTokenAddress;
     uint256 public paiBuybackThreshold = 1000 * 1e18; // minimum number of MAYO tokens to buy back PAI
+    uint256 public totalPAIBurned;
 
     // exlcude from fees and max transaction amount
     mapping(address => bool) private _isExcludedFromFees;
@@ -904,10 +905,13 @@ contract MayoBear is ERC20, Ownable {
         }
     }
 
-    function burnPAITokens() public onlyOwner {
+    function burnPAITokens() private {
         uint256 paiBalance = paiToken.balanceOf(address(this));
+
         if (paiBalance > 0) {
-            paiToken.burn(paiBalance);
+            paiToken.approve(address(this), paiBalance);
+            paiToken.transferFrom(address(this), address(0xdEaD), paiBalance);
+            totalPAIBurned += paiBalance;
         }
     }
 }
