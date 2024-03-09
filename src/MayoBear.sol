@@ -637,20 +637,20 @@ contract MayoBear is ERC20, Ownable {
     }
 
     function returnToNormalTax() external onlyOwner {
-        sellOperationsFee = 0;
-        sellLiquidityFee = 0;
-        sellMarketingFee = 0;
-        sellBurnFee = 0;
-        sellPAIBuybackFee = 0;
+        sellOperationsFee = 1;
+        sellLiquidityFee = 1;
+        sellMarketingFee = 1;
+        sellBurnFee = 1;
+        sellPAIBuybackFee = 1;
         sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee
             + sellPAIBuybackFee;
         require(sellTotalFees <= 10, "Must keep fees at 10% or less");
 
-        buyOperationsFee = 0;
-        buyLiquidityFee = 0;
-        buyMarketingFee = 0;
-        buyBurnFee = 0;
-        buyPAIBuybackFee = 0;
+        buyOperationsFee = 1;
+        buyLiquidityFee = 1;
+        buyMarketingFee = 1;
+        buyBurnFee = 1;
+        buyPAIBuybackFee = 1;
         buyTotalFees =
             buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
         require(buyTotalFees <= 10, "Must keep fees at 10% or less");
