@@ -6,10 +6,12 @@ import "../src/MayoBear.sol";
 
 contract MayoBearTest is Test {
     MayoBear public mayoBear;
-    IPAIToken public paiToken;
+    IERC20 public paiToken;
 
     // dex router address
-    address public router = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    // address public router = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    address public router = address(0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008);
+
     IDexRouter dexRouter = IDexRouter(router);
 
     address public owner = address(this);
@@ -21,15 +23,15 @@ contract MayoBearTest is Test {
     function setUp() public {
         // Deploy the MayoBear contract
         mayoBear = new MayoBear();
-        paiToken = IPAIToken(0xa0Cc4428FbB652C396F28DcE8868B8743742A71c);
+        paiToken = IERC20(0xa0Cc4428FbB652C396F28DcE8868B8743742A71c);
 
         // Verify the initial balance of the owner
         uint256 ownerBalance = mayoBear.balanceOf(address(this));
         assertEq(ownerBalance, 1e9 * 1e18);
 
         // Prepare by transferring some tokens to the user1 for testing transfers
-        mayoBear.transfer(user1, 1000000 * 1e18);
-        mayoBear.transfer(owner, 500000000 * 1e18);
+        mayoBear.transfer(user1, 1_000_000 * 1e18);
+        mayoBear.transfer(owner, 500_000_000 * 1e18);
 
         // Prepare by transferring some tokens to the lppair for testing transfers
         mayoBear.transfer(mayoBear.lpPair(), 1000 * 1e18);
@@ -56,10 +58,10 @@ contract MayoBearTest is Test {
 
         uint256 lpPairBalance = mayoBear.balanceOf(mayoBear.lpPair());
 
-        mayoBear.approve(address(dexRouter), 50000000 * 1e18);
+        mayoBear.approve(address(dexRouter), 50_000_000 * 1e18);
         //owner adds liquidity via dex
         dexRouter.addLiquidityETH{value: 200e18}(
-            address(mayoBear), 50000000e18, 40000000e18, 2e18, owner, block.timestamp + 15
+            address(mayoBear), 50_000_000e18, 40_000_000e18, 2e18, owner, block.timestamp + 15
         );
 
         //get user1 balance
@@ -193,7 +195,7 @@ contract MayoBearTest is Test {
         assertEq(mayoBear.totalSupply(), 1e9 * 1e18);
         assertEq(mayoBear.owner(), address(this));
         assertEq(mayoBear.tradingActive(), false);
-        assertEq(mayoBear.maxBuyAmount(), 2500000 * 1e18);
+        assertEq(mayoBear.maxBuyAmount(), 2_500_000 * 1e18);
         assertEq(mayoBear.paiBuybackThreshold(), 1000 * 1e18);
 
         //console current block
@@ -235,7 +237,7 @@ contract MayoBearTest is Test {
     }
 
     function test_UpdateMaxBuyAmount() public {
-        uint256 newMaxBuyAmount = 15000000;
+        uint256 newMaxBuyAmount = 15_000_000;
         mayoBear.updateMaxBuyAmount(newMaxBuyAmount);
         assertEq(mayoBear.maxBuyAmount(), newMaxBuyAmount * 1e18);
     }

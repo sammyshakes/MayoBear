@@ -102,7 +102,9 @@ interface IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount)
+        external
+        returns (bool);
 
     /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
@@ -176,7 +178,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+    function allowance(address owner, address spender)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _allowances[owner][spender];
     }
 
@@ -185,7 +193,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount)
+        public
+        virtual
+        override
+        returns (bool)
+    {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
@@ -202,7 +215,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue)
+        public
+        virtual
+        returns (bool)
+    {
         uint256 currentAllowance = _allowances[_msgSender()][spender];
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
         unchecked {
@@ -329,16 +346,14 @@ interface IDexFactory {
     function createPair(address tokenA, address tokenB) external returns (address pair);
 }
 
-interface IPAIToken is IERC20 {
-    function burn(uint256 amount) external;
-}
+// interface IPAIToken is IERC20 {}
 
 contract MayoBear is ERC20, Ownable {
     uint256 public maxBuyAmount;
     uint256 public maxSellAmount;
     uint256 public maxWalletAmount;
 
-    IPAIToken public paiToken;
+    IERC20 public paiToken;
     IDexRouter public dexRouter;
     address public lpPair;
 
@@ -424,11 +439,12 @@ contract MayoBear is ERC20, Ownable {
     constructor() ERC20("Mayo Bear", "MAYO") {
         address newOwner = msg.sender; // can leave alone if owner is deployer.
 
-        IDexRouter _dexRouter = IDexRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+        // IDexRouter _dexRouter = IDexRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+        IDexRouter _dexRouter = IDexRouter(0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008); //sepolia
         dexRouter = _dexRouter;
 
         paiTokenAddress = 0xa0Cc4428FbB652C396F28DcE8868B8743742A71c; // PAI token address
-        paiToken = IPAIToken(paiTokenAddress);
+        paiToken = IERC20(paiTokenAddress);
 
         // create pair
         lpPair = IDexFactory(_dexRouter.factory()).createPair(address(this), _dexRouter.WETH());
@@ -437,24 +453,26 @@ contract MayoBear is ERC20, Ownable {
 
         uint256 totalSupply = 1 * 1e9 * 1e18;
 
-        maxBuyAmount = totalSupply * 25 / 10000;
-        maxSellAmount = totalSupply * 25 / 10000;
-        maxWalletAmount = totalSupply * 25 / 10000;
-        swapTokensAtAmount = totalSupply * 5 / 10000;
+        maxBuyAmount = totalSupply * 25 / 10_000;
+        maxSellAmount = totalSupply * 25 / 10_000;
+        maxWalletAmount = totalSupply * 25 / 10_000;
+        swapTokensAtAmount = totalSupply * 5 / 10_000;
 
         buyOperationsFee = 1;
         buyLiquidityFee = 4;
         buyMarketingFee = 1;
         buyBurnFee = 0;
         buyPAIBuybackFee = 4;
-        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
+        buyTotalFees =
+            buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
 
         sellOperationsFee = 1;
         sellLiquidityFee = 4;
         sellMarketingFee = 1;
         sellBurnFee = 0;
         sellPAIBuybackFee = 4;
-        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee + sellPAIBuybackFee;
+        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee
+            + sellPAIBuybackFee;
 
         _excludeFromMaxTransaction(newOwner, true);
         _excludeFromMaxTransaction(address(this), true);
@@ -506,27 +524,41 @@ contract MayoBear is ERC20, Ownable {
     }
 
     function updateMaxBuyAmount(uint256 newNum) external onlyOwner {
-        require(newNum >= (totalSupply() * 2 / 1000) / 1e18, "Cannot set max buy amount lower than 0.2%");
+        require(
+            newNum >= (totalSupply() * 2 / 1000) / 1e18, "Cannot set max buy amount lower than 0.2%"
+        );
         maxBuyAmount = newNum * (10 ** 18);
         emit UpdatedMaxBuyAmount(maxBuyAmount);
     }
 
     function updateMaxSellAmount(uint256 newNum) external onlyOwner {
-        require(newNum >= (totalSupply() * 2 / 1000) / 1e18, "Cannot set max sell amount lower than 0.2%");
+        require(
+            newNum >= (totalSupply() * 2 / 1000) / 1e18,
+            "Cannot set max sell amount lower than 0.2%"
+        );
         maxSellAmount = newNum * (10 ** 18);
         emit UpdatedMaxSellAmount(maxSellAmount);
     }
 
     function updateMaxWalletAmount(uint256 newNum) external onlyOwner {
-        require(newNum >= (totalSupply() * 3 / 1000) / 1e18, "Cannot set max wallet amount lower than 0.3%");
+        require(
+            newNum >= (totalSupply() * 3 / 1000) / 1e18,
+            "Cannot set max wallet amount lower than 0.3%"
+        );
         maxWalletAmount = newNum * (10 ** 18);
         emit UpdatedMaxWalletAmount(maxWalletAmount);
     }
 
     // change the minimum amount of tokens to sell from fees
     function updateSwapTokensAtAmount(uint256 newAmount) external onlyOwner {
-        require(newAmount >= totalSupply() * 1 / 100000, "Swap amount cannot be lower than 0.001% total supply.");
-        require(newAmount <= totalSupply() * 1 / 1000, "Swap amount cannot be higher than 0.1% total supply.");
+        require(
+            newAmount >= totalSupply() * 1 / 100_000,
+            "Swap amount cannot be lower than 0.001% total supply."
+        );
+        require(
+            newAmount <= totalSupply() * 1 / 1000,
+            "Swap amount cannot be higher than 0.1% total supply."
+        );
         swapTokensAtAmount = newAmount;
     }
 
@@ -535,7 +567,10 @@ contract MayoBear is ERC20, Ownable {
         emit MaxTransactionExclusion(updAds, isExcluded);
     }
 
-    function airdropToWallets(address[] memory wallets, uint256[] memory amountsInTokens) external onlyOwner {
+    function airdropToWallets(address[] memory wallets, uint256[] memory amountsInTokens)
+        external
+        onlyOwner
+    {
         require(wallets.length == amountsInTokens.length, "arrays must be the same length");
         require(wallets.length < 600, "Can only airdrop 600 wallets per txn due to gas limits"); // allows for airdrop + launch at the same exact time, reducing delays and reducing sniper input.
         for (uint256 i = 0; i < wallets.length; i++) {
@@ -579,7 +614,8 @@ contract MayoBear is ERC20, Ownable {
         buyMarketingFee = _marketingFee;
         buyBurnFee = _burnFee;
         buyPAIBuybackFee = _PAIBuybackFee;
-        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
+        buyTotalFees =
+            buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
         require(buyTotalFees <= 10, "Must keep fees at 10% or less");
     }
 
@@ -595,7 +631,8 @@ contract MayoBear is ERC20, Ownable {
         sellMarketingFee = _marketingFee;
         sellBurnFee = _burnFee;
         sellPAIBuybackFee = _PAIBuybackFee;
-        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee + sellPAIBuybackFee;
+        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee
+            + sellPAIBuybackFee;
         require(sellTotalFees <= 10, "Must keep fees at 10% or less");
     }
 
@@ -605,7 +642,8 @@ contract MayoBear is ERC20, Ownable {
         sellMarketingFee = 0;
         sellBurnFee = 0;
         sellPAIBuybackFee = 0;
-        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee + sellPAIBuybackFee;
+        sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee
+            + sellPAIBuybackFee;
         require(sellTotalFees <= 10, "Must keep fees at 10% or less");
 
         buyOperationsFee = 0;
@@ -613,7 +651,8 @@ contract MayoBear is ERC20, Ownable {
         buyMarketingFee = 0;
         buyBurnFee = 0;
         buyPAIBuybackFee = 0;
-        buyTotalFees = buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
+        buyTotalFees =
+            buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
         require(buyTotalFees <= 10, "Must keep fees at 10% or less");
     }
 
@@ -675,8 +714,8 @@ contract MayoBear is ERC20, Ownable {
         bool canSwap = contractTokenBalance >= swapTokensAtAmount;
 
         if (
-            canSwap && swapEnabled && !swapping && !automatedMarketMakerPairs[from] && !_isExcludedFromFees[from]
-                && !_isExcludedFromFees[to]
+            canSwap && swapEnabled && !swapping && !automatedMarketMakerPairs[from]
+                && !_isExcludedFromFees[from] && !_isExcludedFromFees[to]
         ) {
             swapping = true;
 
@@ -696,8 +735,8 @@ contract MayoBear is ERC20, Ownable {
         if (takeFee) {
             // bot/sniper penalty.
             if (
-                earlyBuyPenaltyInEffect() && automatedMarketMakerPairs[from] && !automatedMarketMakerPairs[to]
-                    && buyTotalFees > 0
+                earlyBuyPenaltyInEffect() && automatedMarketMakerPairs[from]
+                    && !automatedMarketMakerPairs[to] && buyTotalFees > 0
             ) {
                 if (!boughtEarly[to]) {
                     boughtEarly[to] = true;
@@ -803,8 +842,10 @@ contract MayoBear is ERC20, Ownable {
         uint256 ethBalance = address(this).balance;
         uint256 ethForLiquidity = ethBalance;
 
-        uint256 ethForOperations = ethBalance * tokensForOperations / (totalTokensToSwap - (tokensForLiquidity / 2));
-        uint256 ethForMarketing = ethBalance * tokensForMarketing / (totalTokensToSwap - (tokensForLiquidity / 2));
+        uint256 ethForOperations =
+            ethBalance * tokensForOperations / (totalTokensToSwap - (tokensForLiquidity / 2));
+        uint256 ethForMarketing =
+            ethBalance * tokensForMarketing / (totalTokensToSwap - (tokensForLiquidity / 2));
 
         ethForLiquidity -= ethForOperations + ethForMarketing;
 
@@ -828,7 +869,11 @@ contract MayoBear is ERC20, Ownable {
         (success,) = address(operationsAddress).call{value: address(this).balance}("");
     }
 
-    function transferForeignToken(address _token, address _to) external onlyOwner returns (bool _sent) {
+    function transferForeignToken(address _token, address _to)
+        external
+        onlyOwner
+        returns (bool _sent)
+    {
         require(_token != address(0), "_token address cannot be 0");
         require(_token != address(this), "Can't withdraw native tokens");
         uint256 _contractBalance = IERC20(_token).balanceOf(address(this));
@@ -866,7 +911,10 @@ contract MayoBear is ERC20, Ownable {
 
     // useful for buybacks or to reclaim any ETH on the contract in a way that helps holders.
     function buyBackTokens(uint256 amountInWei) external onlyOwner {
-        require(amountInWei <= 10 ether, "May not buy more than 10 ETH in a single buy to reduce sandwich attacks");
+        require(
+            amountInWei <= 10 ether,
+            "May not buy more than 10 ETH in a single buy to reduce sandwich attacks"
+        );
 
         address[] memory path = new address[](2);
         path[0] = dexRouter.WETH();
