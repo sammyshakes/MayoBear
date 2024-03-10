@@ -491,7 +491,6 @@ contract MayoBear is ERC20, Ownable {
 
     receive() external payable {}
 
-    // only enable if no plan to airdrop
     function enableTrading(uint256 deadBlocks) external onlyOwner {
         require(!tradingActive, "Cannot reenable trading");
         tradingActive = true;
@@ -567,19 +566,6 @@ contract MayoBear is ERC20, Ownable {
         emit MaxTransactionExclusion(updAds, isExcluded);
     }
 
-    function airdropToWallets(address[] memory wallets, uint256[] memory amountsInTokens)
-        external
-        onlyOwner
-    {
-        require(wallets.length == amountsInTokens.length, "arrays must be the same length");
-        require(wallets.length < 600, "Can only airdrop 600 wallets per txn due to gas limits"); // allows for airdrop + launch at the same exact time, reducing delays and reducing sniper input.
-        for (uint256 i = 0; i < wallets.length; i++) {
-            address wallet = wallets[i];
-            uint256 amount = amountsInTokens[i];
-            super._transfer(msg.sender, wallet, amount);
-        }
-    }
-
     function excludeFromMaxTransaction(address updAds, bool isEx) external onlyOwner {
         if (!isEx) {
             require(updAds != lpPair, "Cannot remove uniswap pair from max txn");
@@ -639,7 +625,7 @@ contract MayoBear is ERC20, Ownable {
     function returnToNormalTax() external onlyOwner {
         sellOperationsFee = 1;
         sellLiquidityFee = 1;
-        sellMarketingFee = 1;
+        sellMarketingFee = 2;
         sellBurnFee = 1;
         sellPAIBuybackFee = 1;
         sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee
@@ -648,7 +634,7 @@ contract MayoBear is ERC20, Ownable {
 
         buyOperationsFee = 1;
         buyLiquidityFee = 1;
-        buyMarketingFee = 1;
+        buyMarketingFee = 2;
         buyBurnFee = 1;
         buyPAIBuybackFee = 1;
         buyTotalFees =
