@@ -362,6 +362,7 @@ contract MayoBear is ERC20, Ownable {
 
     address operationsAddress;
     address marketingAddress;
+    address multisig;
 
     uint256 public tradingActiveBlock = 0; // 0 means trading is not active
     uint256 public blockForPenaltyEnd;
@@ -437,14 +438,14 @@ contract MayoBear is ERC20, Ownable {
     event TransferForeignToken(address token, uint256 amount);
 
     constructor() ERC20("Mayo Bear", "MAYO") {
-        address newOwner = msg.sender; // can leave alone if owner is deployer.
-
-        // IDexRouter _dexRouter = IDexRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-        IDexRouter _dexRouter = IDexRouter(0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008); //sepolia
+        IDexRouter _dexRouter = IDexRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
         dexRouter = _dexRouter;
 
         paiTokenAddress = 0xa0Cc4428FbB652C396F28DcE8868B8743742A71c; // PAI token address
         paiToken = IERC20(paiTokenAddress);
+
+        multisig = 0x2230eF42782F12539996c0d3cd036B2Ed6D11979; // multisig address
+        address newOwner = multisig;
 
         // create pair
         lpPair = IDexFactory(_dexRouter.factory()).createPair(address(this), _dexRouter.WETH());
@@ -453,24 +454,24 @@ contract MayoBear is ERC20, Ownable {
 
         uint256 totalSupply = 1 * 1e9 * 1e18;
 
-        maxBuyAmount = totalSupply * 25 / 10_000;
-        maxSellAmount = totalSupply * 25 / 10_000;
-        maxWalletAmount = totalSupply * 25 / 10_000;
+        maxBuyAmount = totalSupply * 200 / 10_000;
+        maxSellAmount = totalSupply * 200 / 10_000;
+        maxWalletAmount = totalSupply * 200 / 10_000;
         swapTokensAtAmount = totalSupply * 5 / 10_000;
 
-        buyOperationsFee = 1;
-        buyLiquidityFee = 4;
-        buyMarketingFee = 1;
+        buyOperationsFee = 0;
+        buyLiquidityFee = 6;
+        buyMarketingFee = 0;
         buyBurnFee = 0;
-        buyPAIBuybackFee = 4;
+        buyPAIBuybackFee = 0;
         buyTotalFees =
             buyOperationsFee + buyLiquidityFee + buyMarketingFee + buyBurnFee + buyPAIBuybackFee;
 
-        sellOperationsFee = 1;
-        sellLiquidityFee = 4;
-        sellMarketingFee = 1;
+        sellOperationsFee = 0;
+        sellLiquidityFee = 6;
+        sellMarketingFee = 0;
         sellBurnFee = 0;
-        sellPAIBuybackFee = 4;
+        sellPAIBuybackFee = 0;
         sellTotalFees = sellOperationsFee + sellLiquidityFee + sellMarketingFee + sellBurnFee
             + sellPAIBuybackFee;
 

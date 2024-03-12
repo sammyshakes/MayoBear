@@ -9,8 +9,8 @@ contract MayoBearTest is Test {
     IERC20 public paiToken;
 
     // dex router address
-    // address public router = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-    address public router = address(0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008);
+    address public router = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    // address public router = address(0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008);//sepolia
 
     IDexRouter dexRouter = IDexRouter(router);
 
@@ -195,7 +195,7 @@ contract MayoBearTest is Test {
         assertEq(mayoBear.totalSupply(), 1e9 * 1e18);
         assertEq(mayoBear.owner(), address(this));
         assertEq(mayoBear.tradingActive(), false);
-        assertEq(mayoBear.maxBuyAmount(), 2_500_000 * 1e18);
+        assertEq(mayoBear.maxBuyAmount(), 20_000_000 * 1e18);
         assertEq(mayoBear.paiBuybackThreshold(), 1000 * 1e18);
 
         //console current block
