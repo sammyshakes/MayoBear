@@ -1,0 +1,37 @@
+{
+  "transactions": [
+    {
+      "hash": "0x72566454c7f1b10a7403ccc1cf26ec9dc722478a7714f3ebdca183c09669ab9c",
+      "transactionType": "CALL",
+      "contractName": "MayoBear",
+      "contractAddress": "0x3f6c91d57aa4A115346c84aa13e67f33379CD762",
+      "function": "transfer(address,uint256)",
+      "arguments": [
+        "0x4D437fEB60094B6fd2E18854622E093d738E273e",
+        "3738235000000000000000000"
+      ],
+      "transaction": {
+        "type": "0x02",
+        "from": "0x391ae0bbfc46e2671e976efbfdb83b01f5701382",
+        "to": "0x3f6c91d57aa4a115346c84aa13e67f33379cd762",
+        "gas": "0x18550",
+        "value": "0x0",
+        "data": "0xa9059cbb0000000000000000000000004d437feb60094b6fd2e18854622e093d738e273e00000000000000000000000000000000000000000003179a201b121f550c0000",
+        "nonce": "0x2d",
+        "accessList": []
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0x72566454c7f1b10a7403ccc1cf26ec9dc722478a7714f3ebdca183c09669ab9c"
+  ],
+  "returns": {},
+  "timestamp": 1710328178,
+  "chain": 1,
+  "multi": false,
+  "commit": "1384507"
+}

@@ -18,18 +18,20 @@ interface IDexRouter {
 contract AddLiquidity is Script {
     IDexRouter dexRouter = IDexRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
-    MayoBear public mayoBear = MayoBear(payable(0xa0Cc4428FbB652C396F28DcE8868B8743742A71c));
+    MayoBear public mayoBear = MayoBear(payable(0x3f6c91d57aa4A115346c84aa13e67f33379CD762));
+    address public deployerAddress = vm.envAddress("DEPLOYER_ADDRESS");
 
-    uint256 mayoTokenAmount = 11 ether;
-    uint256 ethAmount = 11 ether;
+    uint256 mayoTokenAmount;
+    uint256 ethAmount = 2472 * 1e15;
 
     uint256 deployerPrivateKey = uint256(vm.envBytes32("DEPLOYER_PRIVATE_KEY"));
 
     function run() public {
         vm.startBroadcast(deployerPrivateKey);
+
+        mayoTokenAmount = mayoBear.balanceOf(deployerAddress);
         // approve token transfer to cover all possible scenarios
         mayoBear.approve(address(this), mayoTokenAmount);
-        mayoBear.approve(address(dexRouter), mayoTokenAmount);
 
         // add the liquidity and burn the LP tokens
         dexRouter.addLiquidityETH{value: ethAmount}(
@@ -38,7 +40,7 @@ contract AddLiquidity is Script {
             0, // slippage is unavoidable
             0, // slippage is unavoidable
             address(0xdead),
-            block.timestamp
+            block.timestamp + 900
         );
 
         vm.stopBroadcast();

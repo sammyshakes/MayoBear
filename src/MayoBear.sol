@@ -444,7 +444,7 @@ contract MayoBear is ERC20, Ownable {
         paiTokenAddress = 0xa0Cc4428FbB652C396F28DcE8868B8743742A71c; // PAI token address
         paiToken = IERC20(paiTokenAddress);
 
-        multisig = 0x2230eF42782F12539996c0d3cd036B2Ed6D11979; // multisig address
+        multisig = 0x4871eAe23ECA5cE33ceff5e0366Ef5d585e13253; // multisig address
         address newOwner = multisig;
 
         // create pair
